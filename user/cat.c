@@ -3,8 +3,8 @@
 #include "user/user.h"
 
 char buf[512];
-// liran comment
-void
+// liran comment jijiji jiji
+void 
 cat(int fd)
 {
   int n;
