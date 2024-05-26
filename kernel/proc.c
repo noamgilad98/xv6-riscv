@@ -420,7 +420,7 @@ wait(uint64 addr, char* msg_addr)
             return -1;
           }
 
-          if(msg_addr != 0 && copyout(p->pagetable, msg_addr, pp->exit_msg, strlen(pp->exit_msg) + 1) < 0) {
+          if(msg_addr != 0 && copyout(p->pagetable, (uint64)msg_addr, pp->exit_msg, strlen(pp->exit_msg) + 1) < 0) {
             release(&pp->lock);
             release(&wait_lock);
             return -1;
@@ -429,7 +429,6 @@ wait(uint64 addr, char* msg_addr)
           freeproc(pp);
           release(&pp->lock);
           release(&wait_lock);
-          msg = pp->exit_msg;
           return pid;
         }
         release(&pp->lock);

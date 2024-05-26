@@ -44,10 +44,17 @@ sys_fork(void)
 uint64
 sys_wait(void)
 {
-  uint64 p;
-  argaddr(0, &p);
-  return wait(p);
+  uint64 addr;
+  uint64 msg_addr;
+
+  if(argaddr(0, &addr) < 0)
+    return -1;
+  if(argaddr(1, &msg_addr) < 0)
+    return -1;
+
+  return wait(addr, msg_addr);
 }
+
 
 uint64
 sys_sbrk(void)
