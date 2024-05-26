@@ -14,9 +14,11 @@ sys_exit(void)
     uint64 addr;
     char msg[32];
  
-    if(argint(0, &status) < 0)
+    argint(0, &status);
+    if(status < 0)
         return -1;
-    if(argaddr(1, &addr) < 0)
+    argaddr(1, &addr);
+    if(addr < 0)
         return -1;
  
     if(addr == 0) {
@@ -47,9 +49,11 @@ sys_wait(void)
   uint64 addr;
   uint64 msg_addr;
 
-  if(argaddr(0, &addr) < 0)
+  argaddr(0, &addr);
+  if(addr < 0)
     return -1;
-  if(argaddr(1, &msg_addr) < 0)
+  argaddr(1, &msg_addr);
+  if(msg_addr < 0)
     return -1;
 
   return wait(addr, msg_addr);

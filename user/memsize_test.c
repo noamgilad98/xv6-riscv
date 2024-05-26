@@ -6,5 +6,5 @@ int main() {
     printf("Memory size after malloc: %d\n", memsize());
     free(arr);
     printf("Memory size after free: %d\n", memsize());
-    exit(0);
+    exit(0,"");
 }

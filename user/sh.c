@@ -64,7 +64,7 @@ void runcmd(struct cmd *cmd) {
     struct redircmd *rcmd;
 
     if (cmd == 0)
-        exit(1);
+        exit(1,"");
 
     switch (cmd->type) {
         default:
@@ -73,7 +73,7 @@ void runcmd(struct cmd *cmd) {
         case EXEC:
             ecmd = (struct execcmd *) cmd;
             if (ecmd->argv[0] == 0)
-                exit(1);
+                exit(1,"");
             exec(ecmd->argv[0], ecmd->argv);
             fprintf(2, "exec %s failed\n", ecmd->argv[0]);
             break;
@@ -83,7 +83,7 @@ void runcmd(struct cmd *cmd) {
             close(rcmd->fd);
             if (open(rcmd->file, rcmd->mode) < 0) {
                 fprintf(2, "open %s failed\n", rcmd->file);
-                exit(1);
+                exit(1,"");
             }
             runcmd(rcmd->cmd);
             break;
@@ -93,7 +93,7 @@ void runcmd(struct cmd *cmd) {
             if (fork1() == 0)
                 runcmd(lcmd->left);
             char msg[32];
-            wait(0, msg);
+            wait(0, (uint64)&msg);
             printf("Exit message: %s\n", msg);
             runcmd(lcmd->right);
             break;
@@ -119,8 +119,8 @@ void runcmd(struct cmd *cmd) {
             close(p[0]);
             close(p[1]);
             char msg_pipe[32];
-            wait(0, msg_pipe);
-            wait(0, msg_pipe);
+            wait(0, (uint64)&msg_pipe);
+            wait(0, (uint64)&msg_pipe);
             printf("Exit message: %s\n", msg_pipe);
             break;
 
@@ -130,7 +130,7 @@ void runcmd(struct cmd *cmd) {
                 runcmd(bcmd->cmd);
             break;
     }
-    exit(0);
+    exit(0,"");
 }
 
 int
@@ -169,16 +169,16 @@ main(void)
     }
     if(fork1() == 0)
       runcmd(parsecmd(buf));
-    wait(0);
+    wait(0,0);
   }
-  exit(0);
+  exit(0,"");
 }
 
 void
 panic(char *s)
 {
   fprintf(2, "%s\n", s);
-  exit(1);
+  exit(1,"");
 }
 
 int
