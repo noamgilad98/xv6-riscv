@@ -67,7 +67,7 @@ malloc(uint nbytes)
   uint nunits;
 
   nunits = (nbytes + sizeof(Header) - 1)/sizeof(Header) + 1;
-  if((prevp = freep) == 0){
+  if((prevp = freep) == 0){ 
     base.s.ptr = freep = prevp = &base;
     base.s.size = 0;
   }
