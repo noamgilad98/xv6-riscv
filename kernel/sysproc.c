@@ -6,13 +6,27 @@
 #include "spinlock.h"
 #include "proc.h"
 
+
 uint64
 sys_exit(void)
 {
-  int n;
-  argint(0, &n);
-  exit(n);
-  return 0;  // not reached
+    int status;
+    uint64 addr;
+    char msg[32];
+ 
+    if(argint(0, &status) < 0)
+        return -1;
+    if(argaddr(1, &addr) < 0)
+        return -1;
+ 
+    if(addr == 0) {
+        exit(status, 0);
+    } else {
+        if(fetchstr(addr, msg, sizeof(msg)) < 0)
+            return -1;
+        exit(status, msg);
+    }
+    return 0;  // This line will never be reached
 }
 
 uint64
