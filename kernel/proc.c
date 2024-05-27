@@ -347,12 +347,6 @@ void
 exit(int status, char* msg)
 {
   struct proc *p = myproc();
-  if (msg == 0) {
-    strncpy(p->exit_msg, "No exit message", sizeof(p->exit_msg));
-  } 
-  else {
-    strncpy(p->exit_msg, msg, sizeof(p->exit_msg));
-  }
   if(p == initproc)
     panic("init exiting");
 
@@ -380,6 +374,16 @@ exit(int status, char* msg)
   
   acquire(&p->lock);
 
+  if (msg == 0) {
+    char* no_msg = "No exit message\n";
+    strncpy(p->exit_msg, no_msg, sizeof(no_msg));
+  }
+  else {
+    strncpy(p->exit_msg, msg, 31);
+    // Manually null-terminate the string
+    p->exit_msg[31] = '\0';
+  }
+  
   p->xstate = status;
   p->state = ZOMBIE;
 
@@ -420,7 +424,7 @@ wait(uint64 addr, uint64 msg_addr)
             return -1;
           }
 
-          if(msg_addr != 0 && copyout(p->pagetable, msg_addr, pp->exit_msg, strlen(pp->exit_msg) + 1) < 0) {
+          if(msg_addr != 0 && copyout(p->pagetable, msg_addr, (char *)&pp->exit_msg, sizeof(pp->exit_msg)) < 0) {
             release(&pp->lock);
             release(&wait_lock);
             return -1;

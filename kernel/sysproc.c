@@ -10,24 +10,27 @@
 uint64
 sys_exit(void)
 {
-    int status;
-    uint64 addr;
+    // uint64 addr;
     char msg[32];
- 
+    argstr(1,msg,32);
+    int status;
     argint(0, &status);
-    if(status < 0)
-        return -1;
-    argaddr(1, &addr);
-    if(addr < 0)
-        return -1;
+    exit(status,msg);
  
-    if(addr == 0) {
-        exit(status, 0);
-    } else {
-        if(fetchstr(addr, msg, sizeof(msg)) < 0)
-            return -1;
-        exit(status, msg);
-    }
+    // argint(0, &status);
+    // if(status < 0)
+    //     return -1;
+    // argaddr(1, &addr);
+    // if(addr < 0)
+    //     return -1;
+ 
+    // if(addr == 0) {
+    //     exit(status, 0);
+    // } else {
+    //     if(fetchstr(addr, msg, sizeof(msg)) < 0)
+    //         return -1;
+    //     exit(status, msg);
+    // }
     return 0;  // This line will never be reached
 }
 
@@ -50,11 +53,11 @@ sys_wait(void)
   uint64 msg_addr;
 
   argaddr(0, &addr);
-  if(addr < 0)
-    return -1;
+  // if(addr < 0)
+  //   return -1;
   argaddr(1, &msg_addr);
-  if(msg_addr < 0)
-    return -1;
+  // if(msg_addr < 0)
+  //   return -1;
 
   return wait(addr, msg_addr);
 }
