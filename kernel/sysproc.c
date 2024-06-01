@@ -6,13 +6,32 @@
 #include "spinlock.h"
 #include "proc.h"
 
+
 uint64
 sys_exit(void)
 {
-  int n;
-  argint(0, &n);
-  exit(n);
-  return 0;  // not reached
+    // uint64 addr;
+    char msg[32];
+    argstr(1,msg,32);
+    int status;
+    argint(0, &status);
+    exit(status,msg);
+ 
+    // argint(0, &status);
+    // if(status < 0)
+    //     return -1;
+    // argaddr(1, &addr);
+    // if(addr < 0)
+    //     return -1;
+ 
+    // if(addr == 0) {
+    //     exit(status, 0);
+    // } else {
+    //     if(fetchstr(addr, msg, sizeof(msg)) < 0)
+    //         return -1;
+    //     exit(status, msg);
+    // }
+    return 0;  // This line will never be reached
 }
 
 uint64
@@ -30,10 +49,19 @@ sys_fork(void)
 uint64
 sys_wait(void)
 {
-  uint64 p;
-  argaddr(0, &p);
-  return wait(p);
+  uint64 addr;
+  uint64 msg_addr;
+
+  argaddr(0, &addr);
+  // if(addr < 0)
+  //   return -1;
+  argaddr(1, &msg_addr);
+  // if(msg_addr < 0)
+  //   return -1;
+
+  return wait(addr, msg_addr);
 }
+
 
 uint64
 sys_sbrk(void)
@@ -88,4 +116,22 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+//This system call should return the size of the running process’ memory in bytes
+uint64
+sys_memsize(void)
+{
+  return myproc()->sz;
+}
+
+uint64
+sys_set_affinity_mask(void)
+{
+    int mask;
+    if (argint(0, &mask) < 0)
+        return -1;
+    struct proc *p = myproc();
+    p->affinity_mask = mask;
+    return 0;
 }

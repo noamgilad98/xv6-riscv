@@ -83,7 +83,7 @@ void            printfinit(void);
 
 // proc.c
 int             cpuid(void);
-void            exit(int);
+void            exit(int,char*);
 int             fork(void);
 int             growproc(int);
 void            proc_mapstacks(pagetable_t);
@@ -100,7 +100,7 @@ void            scheduler(void) __attribute__((noreturn));
 void            sched(void);
 void            sleep(void*, struct spinlock*);
 void            userinit(void);
-int             wait(uint64);
+int             wait(uint64, uint64);
 void            wakeup(void*);
 void            yield(void);
 int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
@@ -134,7 +134,7 @@ int             strncmp(const char*, const char*, uint);
 char*           strncpy(char*, const char*, int);
 
 // syscall.c
-void            argint(int, int*);
+int            argint(int, int*);
 int             argstr(int, char*, int);
 void            argaddr(int, uint64 *);
 int             fetchstr(uint64, char*, int);

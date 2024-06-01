@@ -53,11 +53,37 @@ argraw(int n)
 }
 
 // Fetch the nth 32-bit system call argument.
-void
+int
 argint(int n, int *ip)
 {
-  *ip = argraw(n);
+    struct proc *p = myproc();
+    switch (n) {
+    case 0:
+        *ip = p->trapframe->a0;
+        break;
+    case 1:
+        *ip = p->trapframe->a1;
+        break;
+    case 2:
+        *ip = p->trapframe->a2;
+        break;
+    case 3:
+        *ip = p->trapframe->a3;
+        break;
+    case 4:
+        *ip = p->trapframe->a4;
+        break;
+    case 5:
+        *ip = p->trapframe->a5;
+        break;
+    default:
+        panic("argint");
+        return -1; // Added return statement for error
+    }
+    return 0; // Added return statement for success
 }
+
+
 
 // Retrieve an argument as a pointer.
 // Doesn't check for legality, since
@@ -101,6 +127,8 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
+extern uint64 sys_memsize(void);
+extern uint64 sys_set_affinity_mask(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -126,6 +154,9 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_memsize] sys_memsize,
+[SYS_set_affinity_mask] sys_set_affinity_mask,
+
 };
 
 void
