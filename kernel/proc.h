@@ -92,6 +92,7 @@ struct proc {
   int xstate;                  // Exit status to be returned to parent's wait
   int pid;                     // Process ID
   int affinity_mask;           // Affinity mask
+  int effective_affinity_mask; // Effective affinity mask
 
 
   // wait_lock must be held when using this:
