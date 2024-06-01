@@ -119,6 +119,8 @@ exec(char *path, char **argv)
     if(*s == '/')
       last = s+1;
   safestrcpy(p->name, last, sizeof(p->name));
+
+  p->affinity_mask = 0; // Allow the process to run on any CPU
     
   // Commit to the user image.
   oldpagetable = p->pagetable;
@@ -139,6 +141,7 @@ exec(char *path, char **argv)
   }
   return -1;
 }
+
 
 // Load a program segment into pagetable at virtual address va.
 // va must be page-aligned

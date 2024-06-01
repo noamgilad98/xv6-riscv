@@ -44,19 +44,18 @@ proc_mapstacks(pagetable_t kpgtbl)
 }
 
 // initialize the proc table.
-void
-procinit(void)
-{
+void procinit(void) {
   struct proc *p;
-  
   initlock(&pid_lock, "nextpid");
   initlock(&wait_lock, "wait_lock");
   for(p = proc; p < &proc[NPROC]; p++) {
-      initlock(&p->lock, "proc");
-      p->state = UNUSED;
-      p->kstack = KSTACK((int) (p - proc));
+    initlock(&p->lock, "proc");
+    p->state = UNUSED;
+    p->kstack = KSTACK((int)(p - proc));
+    p->affinity_mask = 0; // Initialize affinity mask
   }
 }
+
 
 // Must be called with interrupts disabled,
 // to prevent race with process being moved
@@ -82,12 +81,15 @@ mycpu(void)
 struct proc*
 myproc(void)
 {
-  push_off();
-  struct cpu *c = mycpu();
-  struct proc *p = c->proc;
-  pop_off();
-  return p;
+    struct cpu *c;
+    struct proc *p;
+    push_off();
+    c = mycpu();
+    p = c->proc;
+    pop_off();
+    return p;
 }
+
 
 int
 allocpid()
@@ -106,11 +108,8 @@ allocpid()
 // If found, initialize state required to run in the kernel,
 // and return with p->lock held.
 // If there are no free procs, or a memory allocation fails, return 0.
-static struct proc*
-allocproc(void)
-{
+static struct proc* allocproc(void) {
   struct proc *p;
-
   for(p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if(p->state == UNUSED) {
@@ -124,6 +123,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->affinity_mask = 0; // Initialize affinity mask
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -149,12 +149,11 @@ found:
   return p;
 }
 
+
 // free a proc structure and the data hanging from it,
 // including user pages.
 // p->lock must be held.
-static void
-freeproc(struct proc *p)
-{
+static void freeproc(struct proc *p) {
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;
@@ -169,7 +168,9 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+  p->affinity_mask = 0; // Reset affinity mask
 }
+
 
 // Create a user page table for a given process, with no user memory,
 // but with trampoline and trapframe pages.
@@ -276,9 +277,7 @@ growproc(int n)
 
 // Create a new process, copying the parent.
 // Sets up child kernel stack to return as if from fork() system call.
-int
-fork(void)
-{
+int fork(void) {
   int i, pid;
   struct proc *np;
   struct proc *p = myproc();
@@ -312,6 +311,9 @@ fork(void)
 
   pid = np->pid;
 
+  // Inherit parent's affinity mask
+  np->affinity_mask = p->affinity_mask;
+
   release(&np->lock);
 
   acquire(&wait_lock);
@@ -324,6 +326,7 @@ fork(void)
 
   return pid;
 }
+
 
 // Pass p's abandoned children to init.
 // Caller must hold wait_lock.
