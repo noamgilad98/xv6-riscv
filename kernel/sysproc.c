@@ -17,20 +17,6 @@ sys_exit(void)
     argint(0, &status);
     exit(status,msg);
  
-    // argint(0, &status);
-    // if(status < 0)
-    //     return -1;
-    // argaddr(1, &addr);
-    // if(addr < 0)
-    //     return -1;
- 
-    // if(addr == 0) {
-    //     exit(status, 0);
-    // } else {
-    //     if(fetchstr(addr, msg, sizeof(msg)) < 0)
-    //         return -1;
-    //     exit(status, msg);
-    // }
     return 0;  // This line will never be reached
 }
 
