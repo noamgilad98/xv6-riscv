@@ -133,5 +133,6 @@ sys_set_affinity_mask(void)
         return -1;
     struct proc *p = myproc();
     p->affinity_mask = mask;
+    p->effective_affinity_mask = mask;
     return 0;
 }

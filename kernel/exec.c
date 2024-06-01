@@ -122,7 +122,8 @@ exec(char *path, char **argv)
 
   
   p->affinity_mask = 0;//default affinity mask allow all cpus
-    
+  p->effective_affinity_mask = 0;//default affinity mask allow all cpus
+  
   // Commit to the user image.
   oldpagetable = p->pagetable;
   p->pagetable = pagetable;

@@ -53,6 +53,7 @@ void procinit(void) {
     p->state = UNUSED;
     p->kstack = KSTACK((int)(p - proc));
     p->affinity_mask = 0; // Initialize affinity mask
+    p->effective_affinity_mask = 0; // Initialize effective affinity mask
   }
 }
 
@@ -124,6 +125,7 @@ found:
   p->pid = allocpid();
   p->state = USED;
   p->affinity_mask = 0; // Initialize affinity mask
+  p->effective_affinity_mask = 0; // Initialize effective affinity mask
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -169,6 +171,7 @@ static void freeproc(struct proc *p) {
   p->xstate = 0;
   p->state = UNUSED;
   p->affinity_mask = 0; // Reset affinity mask
+  p->effective_affinity_mask = 0; // Reset effective affinity mask
 }
 
 
@@ -474,17 +477,22 @@ scheduler(void)
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if(p->state == RUNNABLE) {
-
-        if (p->affinity_mask == 0 || (p->affinity_mask & (1 << cpuid()))) {
+            // p->affinity_mask = 0101
+        if (p->affinity_mask == 0 || (p->effective_affinity_mask & (1 << cpuid()))) {
         //If the scheduler decides to run a process, print a message to the console with the process ID and the CPU ID:
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
+          if((p->effective_affinity_mask & (1 << cpuid()))){ // for instance : 0001 & 0001 = 0001
+            p->effective_affinity_mask ^= (1 << cpuid());   // for instance : 0001 xor 0001 = 0000
+            if(p->effective_affinity_mask == 0){ 
+                p->effective_affinity_mask = p->affinity_mask; // effective = affinity >> 0101
+            }
+          }
           printf("Process %d is running on CPU %d\n", p->pid, cpuid());
           p->state = RUNNING;
           c->proc = p;
           swtch(&c->context, &p->context);
-
         // Process is done running for now.
         // It should have changed its p->state before coming back.
           c->proc = 0;
