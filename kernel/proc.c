@@ -474,16 +474,21 @@ scheduler(void)
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if(p->state == RUNNABLE) {
+
+        if (p->affinity_mask == 0 || (p->affinity_mask & (1 << cpuid()))) {
+        //If the scheduler decides to run a process, print a message to the console with the process ID and the CPU ID:
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
+          printf("Process %d is running on CPU %d\n", p->pid, cpuid());
+          p->state = RUNNING;
+          c->proc = p;
+          swtch(&c->context, &p->context);
 
         // Process is done running for now.
         // It should have changed its p->state before coming back.
-        c->proc = 0;
+          c->proc = 0;
+        }
       }
       release(&p->lock);
     }

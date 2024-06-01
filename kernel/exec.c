@@ -120,7 +120,8 @@ exec(char *path, char **argv)
       last = s+1;
   safestrcpy(p->name, last, sizeof(p->name));
 
-  p->affinity_mask = 0; // Allow the process to run on any CPU
+  
+  p->affinity_mask = 0;//default affinity mask allow all cpus
     
   // Commit to the user image.
   oldpagetable = p->pagetable;
